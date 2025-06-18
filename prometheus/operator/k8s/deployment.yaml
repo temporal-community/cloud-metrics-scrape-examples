@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metricsproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metricsproxy
+  template:
+    metadata:
+      labels:
+        app: metricsproxy
+    spec:
+      containers:
+      - image: nginx:1.23.3
+        imagePullPolicy: IfNotPresent
+        name: nginx
+        ports:
+        - containerPort: 10001
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 250m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /etc/nginx/nginx.conf
+          name: metricsproxy
+          subPath: nginx.conf
+      volumes:
+      - name: metricsproxy
+        secret:
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+          secretName: metricsproxy
